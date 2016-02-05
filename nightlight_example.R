@@ -1,7 +1,7 @@
 source("nightlight.R")
 
 # set the root folder for where you want to download the dataset
-NOAA_DATASET_ROOT <- "~/Projects/koala/datasets/noaa"
+NOAA_DATASET_ROOT <- "~/Projects/coala/datasets/noaa"
 
 # You need to do this only once
 nightlight_download(NOAA_DATASET_ROOT)
@@ -25,8 +25,10 @@ coordinates <- matrix(
   byrow = TRUE
 )
 
-polygon = Polygon(coordinates)
-spatial_polygons = SpatialPolygons(list(Polygons(list(polygon),1)))
+polygon <- Polygon(coordinates)
+spatial_polygons <- SpatialPolygons(list(Polygons(list(polygon),1)))
 
 # apply a function to the polygon data for each year
-nightlight_apply(nightlight_data, c(spatial_polygons), mean)
+results <- nightlight_apply(nightlight_data, c(spatial_polygons), mean)
+
+print(results)
