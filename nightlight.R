@@ -5,7 +5,7 @@ library(stringr)
 library(dplyr)
 
 # It takes a while to download all the data
-nightlight_download <- function(dest = NULL, src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites/") {
+nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites/") {
   message("Downloading nightlight data from ", src)
   files <- getURL(src, verbose = FALSE, dirlistonly = TRUE) 
   files <- strsplit(files, "\n")[[1]]
@@ -62,6 +62,5 @@ nightlight_apply <- function(nightlight_data, geom, func, ...) {
     }
   }
   
-  results
+  return(results)
 }
-
