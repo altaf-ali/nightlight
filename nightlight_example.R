@@ -29,6 +29,6 @@ polygon <- Polygon(coordinates)
 spatial_polygons <- SpatialPolygons(list(Polygons(list(polygon),1)))
 
 # apply a function to the polygon data for each year
-results <- nightlight_apply(nightlight_data, c(spatial_polygons), mean)
+results <- nightlight_apply(nightlight_data, c(spatial_polygons), mean, na.rm = TRUE)
 
 print(results)

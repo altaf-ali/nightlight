@@ -8,7 +8,7 @@ library(dplyr)
 nightlight_download <- function(dest = NULL, src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites/") {
   message("Downloading nightlight data from ", src)
   files <- getURL(src, verbose = FALSE, dirlistonly = TRUE) 
-  files <- strsplit(files, "\n")[[1]][1:3]
+  files <- strsplit(files, "\n")[[1]]
   
   sapply(files, function(f) {
     tar_file <- file.path(tempdir(), f)
@@ -31,7 +31,7 @@ nightlight_load <- function(nightlight_root) {
   files <- data.frame(
     year = NA,
     satellite = NA,
-    name = list.files(nightlight_root, recursive = FALSE))
+    name = grep("^F\\d{6}\\.v4._web\\.stable_lights.avg_vis\\.tif$", list.files(nightlight_root), value = TRUE))
   
   files <- files %>%
     mutate(basename = str_extract(name, "^F\\d{6}.v4"),
@@ -48,7 +48,7 @@ nightlight_load <- function(nightlight_root) {
 }
 
 # apply a function to each geometric object
-nightlight_apply <- function(nightlight_data, geom, func, na.rm = TRUE) {
+nightlight_apply <- function(nightlight_data, geom, func, ...) {
   results <- data.frame(matrix(NA, nrow = length(geom), ncol = length(nightlight_data)))
   cols <- sapply(nightlight_data, function(n) { strsplit(n@data@names, "\\.")[[1]][[1]] })
   results <- setNames(results, cols)
@@ -58,11 +58,7 @@ nightlight_apply <- function(nightlight_data, geom, func, na.rm = TRUE) {
     for (j in seq_along(nightlight_data)) {
       cropped_obj <- crop(nightlight_data[[j]], extent_obj)
       masked_obj <- mask(cropped_obj, geom[[i]])
-      val <- values(masked_obj)
-      if (na.rm) {
-        val = na.omit(val)
-      }
-      results[i, j] <- func(val)
+      results[i, j] <- func(values(masked_obj), ...)
     }
   }
   
