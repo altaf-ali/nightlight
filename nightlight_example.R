@@ -1,7 +1,7 @@
 source("nightlight.R")
 
 # set the root folder for where you want to download the dataset
-NOAA_DATASET_ROOT <- "~/Projects/coala/datasets/noaa"
+NOAA_DATASET_ROOT <- "~/datasets/noaa"
 
 # You need to do this only once
 nightlight_download(NOAA_DATASET_ROOT)
