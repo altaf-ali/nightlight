@@ -4,10 +4,20 @@ library(raster)
 library(stringr)
 library(dplyr)
 
-# It takes a while to download all the data
-nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites/", max_retry = 5) {
+#' Download nighlight data from NOAA
+#'
+#' \code{nightlight_download} downloads nightlight data from NOAA's website and places it the specified destination directory
+#'
+#' @param dest destination folder for the downloaded nightight data
+#' @param src source URL of NOAA nightlight data
+#' @param max_retry maximum number of retries
+#' @examples
+#' library(nightlight)
+#'
+#' nightlight_download("~/datasets/noaa")
+nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites", max_retry = 5) {
   message("Downloading nightlight data from ", src)
-  files <- getURL(src, verbose = FALSE, dirlistonly = TRUE) 
+  files <- getURL(src, verbose = FALSE, dirlistonly = TRUE)
   files <- strsplit(files, "\n")[[1]]
 
   i <- 0
@@ -15,7 +25,7 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
   for (f in files) {
     i <- i + 1
     tar_file <- file.path(tempdir(), f)
-    
+
     retry <- 0
     while(retry < max_retry) {
       retry <- retry + 1
@@ -23,7 +33,7 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
         message(sprintf("  %2d/%d: %s skipping", i, length(files), f))
         break
       }
-      
+
       message(sprintf("  %2d/%d: %s -> %s (retry %d/%d)", i, length(files), f, tar_file, retry, max_retry))
       file.remove(tar_file)
       tryCatch(download.file(file.path(src, f), destfile = tar_file, quiet = TRUE),
@@ -49,13 +59,21 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
   }
 }
 
-# load the nightlight dataset and return a list of raster objects
-nightlight_load <- function(nightlight_root) {
+#' Load the nightlight dataset and return a vector of raster objects
+#'
+#' \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects
+#'
+#' @param src source folder where nightlight data was downloaded
+#' @examples
+#' library(nightlight)
+#'
+#' nightlight_load("~/datasets/noaa")
+nightlight_load <- function(src) {
   files <- data.frame(
     year = NA,
     satellite = NA,
-    name = grep("^F\\d{6}\\.v4._web\\.stable_lights.avg_vis\\.tif$", list.files(nightlight_root), value = TRUE))
-  
+    name = grep("^F\\d{6}\\.v4._web\\.stable_lights.avg_vis\\.tif$", list.files(src), value = TRUE))
+
   files <- files %>%
     mutate(basename = str_extract(name, "^F\\d{6}.v4"),
            satellite = substr(basename, 2, 3),
@@ -63,14 +81,54 @@ nightlight_load <- function(nightlight_root) {
     arrange(year) %>%
     group_by(year) %>%
     filter(rank(satellite) == max(rank(satellite)))
-  
+
   sapply(files$name, function(filename) {
     message("loading ", filename)
     raster(file.path(nightlight_root, filename))
   })
 }
 
-# apply a function to each geometric object
+#' Apply a function to each geometric object
+#'
+#' \code{nightlight_apply} applies a function over each geometric object in \code{geom} for each year of nightlight data in \code{nightlight_data}
+#' @param nightlight_data source path where nightlight data was downloaded
+#' @param geom geometric object
+#' @param func function to apply
+#' @param ... arguments passed to \code{func}
+#' @examples
+#' library(nightlight)
+#'
+#' set the root folder for where you want to download the dataset
+#' NOAA_DATASET_ROOT <- "~/datasets/noaa"
+#'
+#' nightlight_download(NOAA_DATASET_ROOT)
+#'
+#' nightlight_data <- nightlight_load(NOAA_DATASET_ROOT)
+#'
+#' create a polygon for testing
+#' coordinates <- matrix(
+#'   c(
+#'     113.4789, 22.19556,
+#'     113.4811, 22.21748,
+#'     113.4941, 22.24155,
+#'     113.5271, 22.24595,
+#'     113.5481, 22.22261,
+#'     113.5455, 22.22148,
+#'     113.4988, 22.20166,
+#'     113.4842, 22.19775,
+#'     113.4789, 22.19556
+#'   ),
+#'   ncol = 2,
+#'   byrow = TRUE
+#' )
+#' polygon <- Polygon(coordinates)
+#'
+#' spatial_polygons <- SpatialPolygons(list(Polygons(list(polygon),1)))
+#'
+#' results <- nightlight_apply(nightlight_data, c(spatial_polygons), mean, na.rm = TRUE)
+#'
+#' print(results)
+
 nightlight_apply <- function(nightlight_data, geom, func, ...) {
   results <- data.frame(matrix(NA, nrow = length(geom), ncol = length(nightlight_data)))
   cols <- sapply(nightlight_data, function(n) { strsplit(n@data@names, "\\.")[[1]][[1]] })
@@ -84,6 +142,6 @@ nightlight_apply <- function(nightlight_data, geom, func, ...) {
       results[i, j] <- func(values(masked_obj), ...)
     }
   }
-  
+
   return(results)
 }

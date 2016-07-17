@@ -1,0 +1,18 @@
+Package: nightlight
+Type: Package
+Title: R package for working with NOAA night light data
+Version: 0.1.0
+Author: Altaf Ali <altaf@fastmail.com>
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: R package for working with satellite composites from National
+    Oceanic and Atmospheric Administration (NOAA). We use the cleaned up dataset
+    from NOAA that excludes cloud cover and ephemeral events. Sunlit data, moonlit
+    data, and glare are also excluded.
+License: GPL (>= 2)
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Imports: RCurl,
+ R.utils,
+ raster,
+ stringr,
+ dplyr
