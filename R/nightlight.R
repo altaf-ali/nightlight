@@ -6,6 +6,7 @@ library(dplyr)
 
 #' Download nighlight data from NOAA
 #'
+#' importFrom magrittr "%>%"
 #' \code{nightlight_download} downloads nightlight data from NOAA's website and places it the specified destination directory
 #'
 #' @param dest destination folder for the downloaded nightight data
@@ -62,6 +63,7 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
 
 #' Load the nightlight dataset and return a vector of raster objects
 #'
+#' importFrom magrittr "%>%"
 #' \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects
 #'
 #' @param src source folder where nightlight data was downloaded
@@ -86,12 +88,13 @@ nightlight_load <- function(src) {
 
   sapply(files$name, function(filename) {
     message("loading ", filename)
-    raster::raster(file.path(nightlight_root, filename))
+    raster::raster(file.path(src, filename))
   })
 }
 
 #' Apply a function to each geometric object
 #'
+#' importFrom magrittr "%>%"
 #' \code{nightlight_apply} applies a function over each geometric object in \code{geom} for each year of nightlight data in \code{nightlight_data}
 #'
 #' @param nightlight_data source path where nightlight data was downloaded

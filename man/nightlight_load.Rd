@@ -10,6 +10,7 @@ nightlight_load(src)
 \item{src}{source folder where nightlight data was downloaded}
 }
 \description{
+importFrom magrittr "%>%"
 \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects
 }
 \examples{
