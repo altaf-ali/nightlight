@@ -3,3 +3,4 @@
 export(nightlight_apply)
 export(nightlight_download)
 export(nightlight_load)
+importFrom(magrittr,"%>%")

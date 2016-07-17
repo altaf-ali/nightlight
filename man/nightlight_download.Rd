@@ -16,7 +16,6 @@ nightlight_download(dest = ".",
 \item{max_retry}{maximum number of retries}
 }
 \description{
-importFrom magrittr "%>%"
 \code{nightlight_download} downloads nightlight data from NOAA's website and places it the specified destination directory
 }
 \examples{

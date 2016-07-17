@@ -6,17 +6,17 @@ library(dplyr)
 
 #' Download nighlight data from NOAA
 #'
-#' importFrom magrittr "%>%"
 #' \code{nightlight_download} downloads nightlight data from NOAA's website and places it the specified destination directory
 #'
 #' @param dest destination folder for the downloaded nightight data
 #' @param src source URL of NOAA nightlight data
 #' @param max_retry maximum number of retries
-#' @export
 #' @examples
 #' library(nightlight)
 #'
 #' nightlight_download("~/datasets/noaa")
+#' @importFrom magrittr "%>%"
+#' @export
 nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites", max_retry = 5) {
   message("Downloading nightlight data from ", src)
   files <- RCurl::getURL(src, verbose = FALSE, dirlistonly = TRUE)
@@ -63,15 +63,15 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
 
 #' Load the nightlight dataset and return a vector of raster objects
 #'
-#' importFrom magrittr "%>%"
 #' \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects
 #'
 #' @param src source folder where nightlight data was downloaded
-#' @export
 #' @examples
 #' library(nightlight)
 #'
 #' nightlight_load("~/datasets/noaa")
+#' @importFrom magrittr "%>%"
+#' @export
 nightlight_load <- function(src) {
   files <- data.frame(
     year = NA,
@@ -94,14 +94,12 @@ nightlight_load <- function(src) {
 
 #' Apply a function to each geometric object
 #'
-#' importFrom magrittr "%>%"
 #' \code{nightlight_apply} applies a function over each geometric object in \code{geom} for each year of nightlight data in \code{nightlight_data}
 #'
 #' @param nightlight_data source path where nightlight data was downloaded
 #' @param geom geometric object
 #' @param func function to apply
 #' @param ... arguments passed to \code{func}
-#' @export
 #' @examples
 #' library(nightlight)
 #'
@@ -135,6 +133,8 @@ nightlight_load <- function(src) {
 #' results <- nightlight_apply(nightlight_data, c(spatial_polygons), mean, na.rm = TRUE)
 #'
 #' print(results)
+#' @importFrom magrittr "%>%"
+#' @export
 
 nightlight_apply <- function(nightlight_data, geom, func, ...) {
   results <- data.frame(matrix(NA, nrow = length(geom), ncol = length(nightlight_data)))

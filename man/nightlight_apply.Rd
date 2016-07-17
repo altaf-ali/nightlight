@@ -16,7 +16,6 @@ nightlight_apply(nightlight_data, geom, func, ...)
 \item{...}{arguments passed to \code{func}}
 }
 \description{
-importFrom magrittr "%>%"
 \code{nightlight_apply} applies a function over each geometric object in \code{geom} for each year of nightlight data in \code{nightlight_data}
 }
 \examples{
