@@ -18,7 +18,7 @@ library(dplyr)
 #' nightlight_download("~/datasets/noaa")
 nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/DMSP/web_data/v4composites", max_retry = 5) {
   message("Downloading nightlight data from ", src)
-  files <- getURL(src, verbose = FALSE, dirlistonly = TRUE)
+  files <- RCurl::getURL(src, verbose = FALSE, dirlistonly = TRUE)
   files <- strsplit(files, "\n")[[1]]
 
   i <- 0
@@ -30,14 +30,14 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
     retry <- 0
     while(retry < max_retry) {
       retry <- retry + 1
-      if (length(Sys.glob(file.path(dest, (paste0(str_extract(f, "^F\\d{6}.v4"), "?_web.stable_lights.avg_vis.tif")))))) {
+      if (length(Sys.glob(file.path(dest, (paste0(stringr::str_extract(f, "^F\\d{6}.v4"), "?_web.stable_lights.avg_vis.tif")))))) {
         message(sprintf("  %2d/%d: %s skipping", i, length(files), f))
         break
       }
 
       message(sprintf("  %2d/%d: %s -> %s (retry %d/%d)", i, length(files), f, tar_file, retry, max_retry))
       file.remove(tar_file)
-      tryCatch(download.file(file.path(src, f), destfile = tar_file, quiet = TRUE),
+      tryCatch(utils::download.file(file.path(src, f), destfile = tar_file, quiet = TRUE),
          warning = function(w) { file.remove(tar_file) },
          error = function(e) { file.remove(tar_file) }
       )
@@ -48,12 +48,12 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
 
     if (file.exists(tar_file)) {
       tif.gz_file <- grep("^F\\d{6}\\.v4._web\\.stable_lights.avg_vis\\.tif\\.gz$", untar(tar_file, list = TRUE), value = TRUE)
-      untar(tar_file, files = tif.gz_file, exdir = path.expand(dest))
+      utils::untar(tar_file, files = tif.gz_file, exdir = path.expand(dest))
       tif.gz_file <- file.path(dest, tif.gz_file)
       tif_file <- tools::file_path_sans_ext(tif.gz_file)
       if (file.exists(tif_file))
         file.remove(tif_file)
-      gunzip(tif.gz_file)
+      R.utils::gunzip(tif.gz_file)
       file.remove(tar_file)
       basename(tif_file)
     }
@@ -77,16 +77,16 @@ nightlight_load <- function(src) {
     name = grep("^F\\d{6}\\.v4._web\\.stable_lights.avg_vis\\.tif$", list.files(src), value = TRUE))
 
   files <- files %>%
-    mutate(basename = str_extract(name, "^F\\d{6}.v4"),
+    dplyr::mutate(basename = stringr::str_extract(name, "^F\\d{6}.v4"),
            satellite = substr(basename, 2, 3),
            year = substr(basename, 4, 7)) %>%
-    arrange(year) %>%
-    group_by(year) %>%
-    filter(rank(satellite) == max(rank(satellite)))
+    dplyr::arrange(year) %>%
+    dplyr::group_by(year) %>%
+    dplyr::filter(rank(satellite) == max(rank(satellite)))
 
   sapply(files$name, function(filename) {
     message("loading ", filename)
-    raster(file.path(nightlight_root, filename))
+    raster::raster(file.path(nightlight_root, filename))
   })
 }
 
@@ -139,10 +139,10 @@ nightlight_apply <- function(nightlight_data, geom, func, ...) {
   results <- setNames(results, cols)
 
   for (i in seq_along(geom)) {
-    extent_obj <- extent(geom[[i]])
+    extent_obj <- raster::extent(geom[[i]])
     for (j in seq_along(nightlight_data)) {
-      cropped_obj <- crop(nightlight_data[[j]], extent_obj)
-      masked_obj <- mask(cropped_obj, geom[[i]])
+      cropped_obj <- raster::crop(nightlight_data[[j]], extent_obj)
+      masked_obj <- raster::mask(cropped_obj, geom[[i]])
       results[i, j] <- func(values(masked_obj), ...)
     }
   }
