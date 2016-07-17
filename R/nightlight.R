@@ -11,6 +11,7 @@ library(dplyr)
 #' @param dest destination folder for the downloaded nightight data
 #' @param src source URL of NOAA nightlight data
 #' @param max_retry maximum number of retries
+#' @export
 #' @examples
 #' library(nightlight)
 #'
@@ -64,6 +65,7 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
 #' \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects
 #'
 #' @param src source folder where nightlight data was downloaded
+#' @export
 #' @examples
 #' library(nightlight)
 #'
@@ -91,10 +93,12 @@ nightlight_load <- function(src) {
 #' Apply a function to each geometric object
 #'
 #' \code{nightlight_apply} applies a function over each geometric object in \code{geom} for each year of nightlight data in \code{nightlight_data}
+#'
 #' @param nightlight_data source path where nightlight data was downloaded
 #' @param geom geometric object
 #' @param func function to apply
 #' @param ... arguments passed to \code{func}
+#' @export
 #' @examples
 #' library(nightlight)
 #'
