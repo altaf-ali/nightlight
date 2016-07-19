@@ -4,10 +4,12 @@
 \alias{nightlight_load}
 \title{Load the nightlight dataset and return a vector of raster objects}
 \usage{
-nightlight_load(src)
+nightlight_load(src, logfun = message)
 }
 \arguments{
 \item{src}{source folder where nightlight data was downloaded}
+
+\item{logfun}{a logging function}
 }
 \description{
 \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects

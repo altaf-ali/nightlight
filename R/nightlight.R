@@ -66,13 +66,14 @@ nightlight_download <- function(dest = ".", src = "ftp://ftp.ngdc.noaa.gov/STP/D
 #' \code{nightlight_load} loads nightlight data from the specified destination directory and returns a vector of raster objects
 #'
 #' @param src source folder where nightlight data was downloaded
+#' @param logfun a logging function
 #' @examples
 #' library(nightlight)
 #'
 #' nightlight_load("~/datasets/noaa")
 #' @importFrom magrittr "%>%"
 #' @export
-nightlight_load <- function(src) {
+nightlight_load <- function(src, logfun = message) {
   files <- data.frame(
     year = NA,
     satellite = NA,
@@ -87,7 +88,7 @@ nightlight_load <- function(src) {
     dplyr::filter(rank(satellite) == max(rank(satellite)))
 
   sapply(files$name, function(filename) {
-    message("loading ", filename)
+    logfun(paste("loading", filename))
     raster::raster(file.path(src, filename))
   })
 }
